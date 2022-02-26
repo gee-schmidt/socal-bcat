@@ -206,6 +206,29 @@ plot(bobcat_data.R.pois$scrFrame)
 
 basic.ssDF <-make.ssDF(bobcat_data.L.pois$scrFrame, buffer = 8, res = 0.5)
 
+####make the mask
+
+ocean <- readOGR(dsn = "E:/Socal Bobcat Reproducible Research Folder/Original Data/Original spatial data from Megan/ocean", layer = "ocean")
+
+plot(ocean)
+ssDF.tomask<-basic.ssDF[[1]]
+
+ssDF.tomask.XY<-ssDF.tomask[,c(1,2)]*1000
+
+spdf <- SpatialPointsDataFrame(coords = ssDF.tomask.XY,data = ssDF.tomask.XY,
+                                 proj4string = CRS("+proj=utm +zone=11 +datum=NAD83 +units=m +no_defs +ellps=GRS80 +towgs84=0,0,0"))
+points(spdf)
+ssDF.masked <- erase.point(spdf,ocean)
+plot(ssDF.masked)
+
+ssDF.masked_df <- as.data.frame(ssDF.masked)
+ssDF.masked_df_reduced<-ssDF.masked_df[,c(1:2)]/1000
+basic.ssDF[[1]]<-ssDF.masked_df_reduced
+plot(basic.ssDF)
+
+###should now have ocean points masked 
+
+
 
 save(bcat_L,bcat_R,opp.shrink.tdf.28occs.metadata,
      file = "E:/Socal Bobcat Reproducible Research Folder/Processed Data/socalbobcat_scrframebuildingblocks.RDA")
