@@ -204,12 +204,17 @@ bobcat_data.R.pois <- data2oscr(bcat_R,##edf
 plot(bobcat_data.L.pois$scrFrame, jit=20)
 plot(bobcat_data.R.pois$scrFrame)
 
+basic.ssDF <-make.ssDF(bobcat_data.L.pois$scrFrame, buffer = 8, res = 0.5)
+
 
 save(bcat_L,bcat_R,opp.shrink.tdf.28occs.metadata,
      file = "E:/Socal Bobcat Reproducible Research Folder/Processed Data/socalbobcat_scrframebuildingblocks.RDA")
 
 save(bobcat_data.L.bin,bobcat_data.L.pois,bobcat_data.R.bin,bobcat_data.R.pois,
       file = "E:/Socal Bobcat Reproducible Research Folder/Processed Data/socalbobcat_binpoisframes.RDA")
+
+save(basic.ssDF, 
+     file = "E:/Socal Bobcat Reproducible Research Folder/Processed Data/socalbobcat_basicssDF.RDA")
 
 ####END HERE 
 ###Go to next step where you can load the building blocks and make the ssDFs/ actuall run tests for binomial/poisson 
