@@ -31,8 +31,9 @@ save(m0.L.28occ.bin,m0.R.28occ.bin,m0.L.28occ.pois,m0.R.28occ.pois,
      file = "E:/Socal Bobcat Reproducible Research Folder/Results/Model Outputs/socalbobcat_leftright_binpois_nullmod_notelem.RDA")
 
 
-fl <- fitList.oSCR(list(m0.R.28occ.pois,m0.L.28occ.pois,m0.R.28occ.bin,m0.L.28occ.bin), rename = T)
-
+fl <- fitList.oSCR(list(m0.R.28occ.pois,m0.R.28occ.bin), rename = T)
+m0.R.28occ.bin
+m0.R.28occ.pois
 ms <- modSel.oSCR(fl)
 
 ms
