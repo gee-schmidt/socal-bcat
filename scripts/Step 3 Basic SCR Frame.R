@@ -2,10 +2,7 @@
 
 ###This basic scrframe can be used to test buffer sizes for the ssDF and pois/binom on the det function
 
-rm(list=ls())
-
-setwd("C:/Users/Greta/Desktop/SDSU Fall 2020/Julia_Bobcat_Paper/R_Data_Inputs")
-# rm(list=ls())
+#truly do not know which of these are needed... sigh
 library(dplyr)
 library(car)
 library(oSCR)
@@ -24,13 +21,14 @@ library(IRanges)
 library(spatialEco)
 
 ##raw capture data still with dates of cap, not occasion
-bcat<-read.csv("C:/Users/Greta/Desktop/SDSU Fall 2020/Julia_Bobcat_Paper/R_Data_Inputs/SCR_master_11-2-18_2020_1028_idsheet_gms_QC_2021_0602.csv")
+bcat<-read.csv("E:/Socal Bobcat Reproducible Research Folder/Processed Data/socalbobcat_crdata.csv")
 bcat$occ<-ymd(bcat$occ)
 bcat<-bcat[,c(2:6)]
 
+
 #raw trap loc data, includes collared cat cap locs
-traps<-read.csv("detectors_all_new.csv")
-trap.metadata <- read.csv("2020_0112_detcovs.csv", stringsAsFactors = FALSE)
+traps<-read.csv("E:/Socal Bobcat Reproducible Research Folder/Processed Data/socalbobcat_traps.csv")
+trap.metadata <- read.csv("E:/Socal Bobcat Reproducible Research Folder/Processed Data/socalbobcat_detcovs.csv", stringsAsFactors = FALSE)
 
 ###reduce size of the coords so that things will run faster 
 traps[,c(2:3)]<-traps[,c(2:3)]/1000
@@ -84,14 +82,14 @@ plot(traps.nocaps$X,traps.nocaps$Y)
 
 
 ###want to add trap opp
-trap.opp<-read.csv("C:/Users/Greta/Desktop/SDSU Fall 2020/Julia_Bobcat_Paper/Cam_Activity/2020_1102_socalbcat_weeklytrapopp.csv")
+trap.opp<-read.csv("E:/Socal Bobcat Reproducible Research Folder/Processed Data/socalbcat_weeklytrapopp.csv")
 
 ##append to trap opp df
 traps.nocaps.opp<-cbind(traps.nocaps,trap.opp[3:65])
 
 ###now need to bin the bobcat detections into 1:63 occasions
 ###mess with some date data to get the occs as weekly intervals 
-camset<-read.csv("C:/Users/Greta/Desktop/SDSU Fall 2020/Julia_Bobcat_Paper/Cam_Activity/2020_1102_socalbcat_camactivity.csv")
+camset<-read.csv("E:/Socal Bobcat Reproducible Research Folder/Processed Data/socalbcat_camactivity.csv")
 camset$set_date<-ymd(camset$Int_Start)
 camset$end_date<-ymd(camset$Int_End)
 camset$cam_int<-interval(camset$set_date,camset$end_date)
@@ -148,11 +146,9 @@ bcat_L<-subset(bcat.occ.shrink.28occs, ors_both == "Left" | ors_both == "Both")
 bcat_R<-subset(bcat.occ.shrink.28occs, ors_both == "Right"| ors_both == "Both")
 
 
-save(bcat_L,bcat_R,opp.shrink.tdf.28occs.metadata,
-     file = "C:/Users/Greta/Desktop/SDSU Fall 2020/Julia_Bobcat_Paper/R_Code_and_Data/2021_0602_scrframebuildingblocks.RDA")
-
-load("C:/Users/Greta/Desktop/SDSU Fall 2020/Julia_Bobcat_Paper/R_Data_Inputs/2020_0602_processed_telem_data.RDA")
 ####NOW to make the scrframe ... one for left and both, one for right and both
+
+###Also want to make ones that do binomial encounter and poisson encounter 
 names(opp.shrink.tdf.28occs.metadata)
 names(bcat_L)
 bobcat_data.L.bin <- data2oscr(bcat_L,##edf
@@ -163,7 +159,6 @@ bobcat_data.L.bin <- data2oscr(bcat_L,##edf
                                trap.col = 4,
                                K = c(28), ##sessions w/ occasions 
                                ntraps = c(36),##traps
-                               telemetry = bcat.telem.oscr.thinned.L,
                                trapcov.names = c("site_type","rec_level","cam_type","season"),
                                tdf.sep = "/")##if have trapcovs 
 
@@ -176,7 +171,6 @@ bobcat_data.R.bin <- data2oscr(bcat_R,##edf
                                trap.col = 4,
                                K = c(28), ##sessions w/ occasions 
                                ntraps = c(36),##traps
-                               telemetry = bcat.telem.oscr.thinned.R,
                                trapcov.names = c("site_type","rec_level","cam_type","season"),
                                tdf.sep = "/")
 
@@ -190,7 +184,6 @@ bobcat_data.L.pois <- data2oscr(bcat_L,##edf
                                 trap.col = 4,
                                 K = c(28), ##sessions w/ occasions 
                                 ntraps = c(36),##traps
-                                telemetry = bcat.telem.oscr.thinned.L,
                                 trapcov.names = c("site_type","rec_level","cam_type","season"),
                                 tdf.sep = "/",
                                 remove.extracaps = FALSE)##if have trapcovs 
@@ -204,7 +197,6 @@ bobcat_data.R.pois <- data2oscr(bcat_R,##edf
                                 trap.col = 4,
                                 K = c(28), ##sessions w/ occasions 
                                 ntraps = c(36),##traps
-                                telemetry = bcat.telem.oscr.thinned.R,
                                 trapcov.names = c("site_type","rec_level","cam_type","season"),
                                 tdf.sep = "/",
                                 remove.extracaps = FALSE)##if have trapcovs 
@@ -212,50 +204,12 @@ bobcat_data.R.pois <- data2oscr(bcat_R,##edf
 plot(bobcat_data.L.pois$scrFrame, jit=20)
 plot(bobcat_data.R.pois$scrFrame)
 
-# printframe.L.bin<-print.scrFrame.new(bobcat_data.L.bin$scrFrame)
-# hist(printframe[[2]][[1]])
-#ssdf w/ buffers of 8km and 500mx500m  res
-bcat.L.ssDF.pois<-make.ssDF(bobcat_data.L.pois$scrFrame, buffer = 8, res = 0.5)
-bcat.R.ssDF.pois<-make.ssDF(bobcat_data.R.pois$scrFrame, buffer = 8, res = 0.5)
 
-bcat.L.ssDF.bin<-make.ssDF(bobcat_data.L.bin$scrFrame, buffer = 8, res = 0.5)
-bcat.R.ssDF.bin<-make.ssDF(bobcat_data.R.bin$scrFrame, buffer = 8, res = 0.5)
+save(bcat_L,bcat_R,opp.shrink.tdf.28occs.metadata,
+     file = "E:/Socal Bobcat Reproducible Research Folder/Processed Data/socalbobcat_scrframebuildingblocks.RDA")
 
-plot(bcat.L.ssDF.pois)
+save(bobcat_data.L.bin,bobcat_data.L.pois,bobcat_data.R.bin,bobcat_data.R.pois,
+      file = "E:/Socal Bobcat Reproducible Research Folder/Processed Data/socalbobcat_binpoisframes.RDA")
 
-####make the masks here 
-
-ocean <- readOGR(dsn = "C:/Users/Greta/Desktop/SDSU Fall 2020/Julia_Bobcat_Paper/2021_0112_From_Megan/ocean", layer = "ocean")
-
-plot(ocean)
-ssdf_tomask.L<- bcat.L.ssDF.pois[[1]]
-ssdf_tomask.R<- bcat.R.ssDF.pois[[1]]
-ssdf_tomask.L.XY<-ssdf_tomask.L[,c(1,2)]*1000
-ssdf_tomask.R.XY<-ssdf_tomask.R[,c(1,2)]*1000
-L.spdf <- SpatialPointsDataFrame(coords = ssdf_tomask.L.XY,data = ssdf_tomask.L.XY,
-                                 proj4string = CRS("+proj=utm +zone=11 +datum=NAD83 +units=m +no_defs +ellps=GRS80 +towgs84=0,0,0"))
-points(L.spdf)
-L.masked <- erase.point(L.spdf,ocean)
-plot(L.masked)
-
-L.masked_df <- as.data.frame(L.masked)
-L.masked_df_reduced<-L.masked_df[,c(1:2)]/1000
-bcat.L.ssDF.pois[[1]]<-L.masked_df_reduced
-plot(bcat.L.ssDF.pois)
-
-R.spdf <- SpatialPointsDataFrame(coords = ssdf_tomask.R.XY,data = ssdf_tomask.R.XY,
-                                 proj4string = CRS("+proj=utm +zone=11 +datum=NAD83 +units=m +no_defs +ellps=GRS80 +towgs84=0,0,0"))
-points(R.spdf)
-R.masked <- erase.point(R.spdf,ocean)
-plot(R.masked)
-
-R.masked_df <- as.data.frame(R.masked)
-R.masked_df_reduced<-R.masked_df[,c(1:2)]/1000
-bcat.R.ssDF.pois[[1]]<-R.masked_df_reduced
-plot(bcat.R.ssDF.pois)
-
-# save(bobcat_data.L.bin,bobcat_data.R.bin,bcat.L.ssDF.bin,bcat.R.ssDF.bin, file = "C:/Users/Greta/Desktop/SDSU Fall 2020/Julia_Bobcat_Paper/R_Code_and_Data/2021_0313_socalbcat_nullmod_scrframe_ssdf_28occshrink_fixedtdf_binary.RDA")
-# save(bobcat_data.L.pois,bobcat_data.R.pois,bcat.L.ssDF.pois,bcat.R.ssDF.pois, file = "C:/Users/Greta/Desktop/SDSU Fall 2020/Julia_Bobcat_Paper/R_Code_and_Data/2021_0313_socalbcat_nullmod_scrframe_ssdf_28occshrink_fixedtdf_poisson.RDA")
-
-
-######ALLLL THIS IS DONE WHEN YOU LOAD WHAT IS BELOW!! (already masked) 
+####END HERE 
+###Go to next step where you can load the building blocks and make the ssDFs/ actuall run tests for binomial/poisson 
