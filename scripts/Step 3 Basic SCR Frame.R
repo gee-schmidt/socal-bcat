@@ -1,6 +1,6 @@
 ##Step 3 Basic SCR Frame setup (No Telem yet because need a basic ssDF to format telem data)
 
-###This basic scrframe can be used to test buffer sizes for the ssDF and pois/binom on the det function
+###This gets you the basic SCRframe, you can add covs to the ssDF after 
 
 #truly do not know which of these are needed... sigh
 library(dplyr)
@@ -151,30 +151,6 @@ bcat_R<-subset(bcat.occ.shrink.28occs, ors_both == "Right"| ors_both == "Both")
 ###Also want to make ones that do binomial encounter and poisson encounter 
 names(opp.shrink.tdf.28occs.metadata)
 names(bcat_L)
-bobcat_data.L.bin <- data2oscr(bcat_L,##edf
-                               tdf = list(opp.shrink.tdf.28occs.metadata), ##tdf w/ trap effort 
-                               sess.col = 13,
-                               id.col = 2,
-                               occ.col = 14, 
-                               trap.col = 4,
-                               K = c(28), ##sessions w/ occasions 
-                               ntraps = c(36),##traps
-                               trapcov.names = c("site_type","rec_level","cam_type","season"),
-                               tdf.sep = "/")##if have trapcovs 
-
-
-bobcat_data.R.bin <- data2oscr(bcat_R,##edf
-                               tdf = list(opp.shrink.tdf.28occs.metadata), ##tdf w/ trap effort 
-                               sess.col = 13,
-                               id.col = 2,
-                               occ.col = 14, 
-                               trap.col = 4,
-                               K = c(28), ##sessions w/ occasions 
-                               ntraps = c(36),##traps
-                               trapcov.names = c("site_type","rec_level","cam_type","season"),
-                               tdf.sep = "/")
-
-
 
 bobcat_data.L.pois <- data2oscr(bcat_L,##edf
                                 tdf = list(opp.shrink.tdf.28occs.metadata), ##tdf w/ trap effort 
@@ -233,8 +209,8 @@ plot(basic.ssDF)
 save(bcat_L,bcat_R,opp.shrink.tdf.28occs.metadata,
      file = "E:/Socal Bobcat Reproducible Research Folder/Processed Data/socalbobcat_scrframebuildingblocks.RDA")
 
-save(bobcat_data.L.bin,bobcat_data.L.pois,bobcat_data.R.bin,bobcat_data.R.pois,
-      file = "E:/Socal Bobcat Reproducible Research Folder/Processed Data/socalbobcat_binpoisframes.RDA")
+save(bobcat_data.L.pois,bobcat_data.R.pois,
+      file = "E:/Socal Bobcat Reproducible Research Folder/Processed Data/socalbobcat_poisframes.RDA")
 
 save(basic.ssDF, 
      file = "E:/Socal Bobcat Reproducible Research Folder/Processed Data/socalbobcat_basicssDF.RDA")
