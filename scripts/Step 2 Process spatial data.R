@@ -1,5 +1,10 @@
 #Script to process spatial data for ssDFs 
 #truly unsure if all these needed
+
+##setwd first
+setwd("D:/Socal Bobcat Reproducible Research Folder")
+
+
 library(dplyr)
 library(car)
 library(oSCR)
@@ -18,7 +23,7 @@ library(IRanges)
 library(spatialEco)
 
 ##WATER (dist to in m)
-water_dist<- raster("E:/Socal Bobcat Reproducible Research Folder/Original Data/Original spatial data from Megan/dist_water.tif")
+water_dist<- raster("./Original Data/Original spatial data from Megan/dist_water.tif")
 plot(water_dist)
 #have to change the rasters to the correct projection
 projection<-"+proj=utm +zone=11 +datum=NAD83 +units=m +no_defs +ellps=GRS80 +towgs84=0,0,0"
@@ -36,7 +41,7 @@ water_dist_500.scale<-scale(water_dist_500)
 plot(water_dist_500.scale)
 
 ###ELEVATION (m)
-elev<- raster("E:/Socal Bobcat Reproducible Research Folder/Original Data/Original spatial data from Megan/elevation_NAD83_UTM11N.tif")
+elev<- raster("./Original Data/Original spatial data from Megan/elevation_NAD83_UTM11N.tif")
 plot(elev)
 #have to change the rasters to the correct projection
 projection<-"+proj=utm +zone=11 +datum=NAD83 +units=m +no_defs +ellps=GRS80 +towgs84=0,0,0"
@@ -54,7 +59,7 @@ elev_500.scale<-scale(elev_500)
 plot(elev_500.scale)
 
 ###IMPERVIOUSNESS (percent)
-imperv<- raster("E:/Socal Bobcat Reproducible Research Folder/Original Data/Original spatial data from Megan/SD_CombImprv.tif")
+imperv<- raster("./Original Data/Original spatial data from Megan/SD_CombImprv.tif")
 plot(imperv)
 #have to change the rasters to the correct projection
 projection<-"+proj=utm +zone=11 +datum=NAD83 +units=m +no_defs +ellps=GRS80 +towgs84=0,0,0"
@@ -73,8 +78,8 @@ plot(imperv_500.scale)
 
 
 #Road related covs 
-road465<- raster("E:/Socal Bobcat Reproducible Research Folder/Original Data/Original spatial data from Megan/all_roads_scale_465_m.tif")
-road1000<- raster("E:/Socal Bobcat Reproducible Research Folder/Original Data/Original spatial data from Megan/all_roads_scale_1000_m.tif")
+road465<- raster("./Original Data/Original spatial data from Megan/all_roads_scale_465_m.tif")
+road1000<- raster("./Original Data/Original spatial data from Megan/all_roads_scale_1000_m.tif")
 
 projection<-"+proj=utm +zone=11 +datum=NAD83 +units=m +no_defs +ellps=GRS80 +towgs84=0,0,0"
 
@@ -92,4 +97,4 @@ road1000.1.scale<-scale(road1000.1)
 ###then save
 save(water_dist_500.scale,elev_500.scale,imperv_500.scale,
      road465.1.scale,road1000.1.scale,
-     file = "E:/Socal Bobcat Reproducible Research Folder/Processed Data/Spatial Data/socalbcat_ssDFcovrasters.rda")
+     file = "./Processed Data/Spatial Data/socalbcat_ssDFcovrasters.rda")
