@@ -1,0 +1,1 @@
+### Step 6 Detection Models - trapcovs only sel first 
