@@ -1,39 +1,127 @@
-#Step 4 testing poisson & binomial det funcs 
+#Step 4 Process and format telemetry data 
 
+######Telemetry processing script
+
+#set the wd 
+setwd("D:/Socal Bobcat Reproducible Research Folder")
+
+#load what you need 
 library(oSCR)
+library(lubridate)
+library(tidyverse)
+library(dplyr)
 
-#load binpois scrFrames
-load("E:/Socal Bobcat Reproducible Research Folder/Processed Data/socalbobcat_binpoisframes.RDA")
+#load the ssDF bc needed for the telem data 
+load("./Processed Data/socalbobcat_basicssDF.RDA")
+load("./Processed Data/socalbobcat_scrframebuildingblocks.RDA")
 
-#load basic ssDF 
-load("E:/Socal Bobcat Reproducible Research Folder/Processed Data/socalbobcat_basicssDF.RDA")
+###INFO ON THE CATS INCLUDED 
+###Also caught on cam: M03 (66), M14 (71), M15 OR 16 (100)?
+###<- position in LEFT edf: 37,40,60 respectively
+###<- position in RIGHT edf: 36,39,52 respectively
 
-###Run null models
+unique(sort(bcat_R$id))
+unique(sort(bcat_L$id))
 
-#left bin
-m0.L.28occ.bin <- oSCR.fit(model=list(D~1,p0~1,sig~1), 
-                           scrFrame=bobcat_data.L.bin$scrFrame, ssDF=basic.ssDF, encmod = "B")
-#right bin
-m0.R.28occ.bin <- oSCR.fit(model=list(D~1,p0~1,sig~1), 
-                           scrFrame=bobcat_data.R.bin$scrFrame, ssDF=basic.ssDF, encmod = "B")
-
-#left pois
-m0.L.28occ.pois <- oSCR.fit(model=list(D~1,p0~1,sig~1), 
-                            scrFrame=bobcat_data.L.pois$scrFrame, ssDF=basic.ssDF, encmod = "P")
-
-#right pois
-m0.R.28occ.pois <- oSCR.fit(model=list(D~1,p0~1,sig~1), 
-                            scrFrame=bobcat_data.R.pois$scrFrame, ssDF=basic.ssDF, encmod = "P")
+###NEEDS to be the POSITION in the EDF in cap.tel, NOT id#!!!!
+# ##load in the raw telemetry
+telem.data <- read.csv("./Processed Data/socalbobcat_telemdata.csv")
 
 
-#and save them but you can also evaluate in a model selection below 
-save(m0.L.28occ.bin,m0.R.28occ.bin,m0.L.28occ.pois,m0.R.28occ.pois,
-     file = "E:/Socal Bobcat Reproducible Research Folder/Results/Model Outputs/socalbobcat_leftright_binpois_nullmod_notelem.RDA")
+telem.data <- telem.data%>%mutate(Date_Format = make_date(Year,Month,Day))
+
+names(telem.data)
+
+###filter for precision/accuracy (according to lewis paper)
+filter(telem.data, Satellites >=3 & HDOP <= 5)
+
+telem.data.1 <- telem.data %>% 
+  filter(Satellites >=3 & HDOP <= 5) %>%
+  group_by(Animal,Date_Format) %>%
+  sample_n(1)
+
+telem.data.2 <- telem.data.1 %>% 
+  # transform to date format with lubridate
+  group_by(Animal) %>% 
+  # find years min and max 
+  summarise(min = min(Date_Format),
+            max = max(Date_Format))
 
 
-fl <- fitList.oSCR(list(m0.R.28occ.pois,m0.R.28occ.bin), rename = T)
-m0.R.28occ.bin
-m0.R.28occ.pois
-ms <- modSel.oSCR(fl)
+xxtelem.data.1.F04<-subset(telem.data.1, Animal == "F04")
+xxtelem.data.1.M01<-subset(telem.data.1, Animal == "M01")
+aatelem.data.1.M03<-subset(telem.data.1, Animal == "M03")
+xxtelem.data.1.M06<-subset(telem.data.1, Animal == "M06")
+xxtelem.data.1.M08<-subset(telem.data.1, Animal == "M08")
+bbtelem.data.1.M14<-subset(telem.data.1, Animal == "M14")
+xxtelem.data.1.M15<-subset(telem.data.1, Animal == "M15")
+cctelem.data.1.M16<-subset(telem.data.1, Animal == "M16")
 
-ms
+#thin random sample M01 and M03 (the ones that fail)
+nrow(xxtelem.data.1.M01)
+thinby<-round(0.1*nrow(xxtelem.data.1.M01))
+xxtelem.data.1.M01.thin<-xxtelem.data.1.M01[sample(nrow(xxtelem.data.1.M01), thinby), ]
+
+
+thinby<-round(0.1*nrow(aatelem.data.1.M03))
+aatelem.data.1.M03.thin<-aatelem.data.1.M03[sample(nrow(aatelem.data.1.M03), thinby), ]
+###testing even more thinned 
+
+
+####put them all back together 
+
+###REMOVING M03 -- fucks up sigma and not reflective of his HR in 2012
+aatelem.data.1.M03.thin$Animal<-"aaM03"
+bbtelem.data.1.M14$Animal<-"bbM14"
+cctelem.data.1.M16$Animal<-"ccM16"
+
+catlist<-list(bbtelem.data.1.M14,cctelem.data.1.M16,####caught on cam
+              xxtelem.data.1.F04,xxtelem.data.1.M01.thin,xxtelem.data.1.M06,xxtelem.data.1.M08,xxtelem.data.1.M15)
+###Also caught on cam: M03 (66), M14 (71), M15 OR 16 (100)? based on homeranges, calling 100 M16
+aatelem.data.1.M03.thin$Animal<-"aaM03"
+bbtelem.data.1.M14$Animal<-"bbM14"
+cctelem.data.1.M16$Animal<-"ccM16"
+
+# cap.tel.L<-c(37,40,60)
+# cap.tel.R<-c(36,39,52)
+###Remove M03
+
+
+####give the positions in the scrFrame
+cap.tel.L<-c(40,60)
+cap.tel.R<-c(39,52)
+
+
+#put all thinned telem data in a df properly ordered 
+telem.data.all.thinned<-do.call(rbind, catlist)
+
+#just get the ID and UTM columns 
+telem.data.all.thinned.1<-telem.data.all.thinned[c(2,11,12)]
+
+#rename 
+names(telem.data.all.thinned.1)<- c("ind","X","Y")
+
+#make ind a character, I think that's important 
+telem.data.all.thinned.1$ind<-as.character(telem.data.all.thinned.1$ind)
+
+#convert from m to km (to match the ssDF and scrFrame)
+telem.data.all.thinned.1[,c("X","Y")] <- telem.data.all.thinned.1[,c("X","Y")]/1e3
+
+
+###format as df
+telem.data.all.thinned.1<-as.data.frame(telem.data.all.thinned.1)
+
+
+##put thru oscr function to get in correct format for scrFrame 
+bcat.nfix.thinned <- telemetry.processor(list(basic.ssDF[[1]]),
+                                         list(telem.data.all.thinned.1))$nfreq
+
+###make one specially for left and right datasets for where those collared cats are in those edfs 
+bcat.telem.oscr.thinned.L<-list(fixfreq=bcat.nfix.thinned,cap.tel=list(cap.tel.L))
+bcat.telem.oscr.thinned.R<-list(fixfreq=bcat.nfix.thinned,cap.tel=list(cap.tel.R))
+
+###save data file 
+save(bcat.telem.oscr.thinned.L,
+     bcat.telem.oscr.thinned.R,file= "./Processed Data/socalbobcat_processed_telem_data.RDA")
+
+
