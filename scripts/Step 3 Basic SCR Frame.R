@@ -1,7 +1,7 @@
 ##Step 3 Basic SCR Frame setup (No Telem yet because need a basic ssDF to format telem data)
 
 ###This gets you the basic SCRframe, you can add covs to the ssDF after 
-
+setwd("D:/Socal Bobcat Reproducible Research Folder")
 #truly do not know which of these are needed... sigh
 library(dplyr)
 library(car)
@@ -17,18 +17,23 @@ library(tibble)
 library(lubridate)
 library(BiocManager)
 library(fuzzyjoin)
+
+# if (!require("BiocManager", quietly = TRUE))
+#   install.packages("BiocManager")
+# 
+# BiocManager::install("IRanges")
 library(IRanges)
 library(spatialEco)
 
 ##raw capture data still with dates of cap, not occasion
-bcat<-read.csv("E:/Socal Bobcat Reproducible Research Folder/Processed Data/socalbobcat_crdata.csv")
+bcat<-read.csv("./Processed Data/socalbobcat_crdata.csv")
 bcat$occ<-ymd(bcat$occ)
 bcat<-bcat[,c(2:6)]
 
 
 #raw trap loc data, includes collared cat cap locs
-traps<-read.csv("E:/Socal Bobcat Reproducible Research Folder/Processed Data/socalbobcat_traps.csv")
-trap.metadata <- read.csv("E:/Socal Bobcat Reproducible Research Folder/Processed Data/socalbobcat_detcovs.csv", stringsAsFactors = FALSE)
+traps<-read.csv("./Processed Data/socalbobcat_traps.csv")
+trap.metadata <- read.csv("./Processed Data/socalbobcat_detcovs.csv", stringsAsFactors = FALSE)
 
 ###reduce size of the coords so that things will run faster 
 traps[,c(2:3)]<-traps[,c(2:3)]/1000
@@ -82,14 +87,14 @@ plot(traps.nocaps$X,traps.nocaps$Y)
 
 
 ###want to add trap opp
-trap.opp<-read.csv("E:/Socal Bobcat Reproducible Research Folder/Processed Data/socalbcat_weeklytrapopp.csv")
+trap.opp<-read.csv("./Processed Data/socalbcat_weeklytrapopp.csv")
 
 ##append to trap opp df
 traps.nocaps.opp<-cbind(traps.nocaps,trap.opp[3:65])
 
 ###now need to bin the bobcat detections into 1:63 occasions
 ###mess with some date data to get the occs as weekly intervals 
-camset<-read.csv("E:/Socal Bobcat Reproducible Research Folder/Processed Data/socalbcat_camactivity.csv")
+camset<-read.csv("./Processed Data/socalbcat_camactivity.csv")
 camset$set_date<-ymd(camset$Int_Start)
 camset$end_date<-ymd(camset$Int_End)
 camset$cam_int<-interval(camset$set_date,camset$end_date)
@@ -184,7 +189,7 @@ basic.ssDF <-make.ssDF(bobcat_data.L.pois$scrFrame, buffer = 8, res = 0.5)
 
 ####make the mask
 
-ocean <- readOGR(dsn = "E:/Socal Bobcat Reproducible Research Folder/Original Data/Original spatial data from Megan/ocean", layer = "ocean")
+ocean <- readOGR(dsn = "./Original Data/Original spatial data from Megan/ocean", layer = "ocean")
 
 plot(ocean)
 ssDF.tomask<-basic.ssDF[[1]]
@@ -207,13 +212,13 @@ plot(basic.ssDF)
 
 
 save(bcat_L,bcat_R,opp.shrink.tdf.28occs.metadata,
-     file = "E:/Socal Bobcat Reproducible Research Folder/Processed Data/socalbobcat_scrframebuildingblocks.RDA")
+     file = "./Processed Data/socalbobcat_scrframebuildingblocks.RDA")
 
 save(bobcat_data.L.pois,bobcat_data.R.pois,
-      file = "E:/Socal Bobcat Reproducible Research Folder/Processed Data/socalbobcat_poisframes.RDA")
+      file = "./Processed Data/socalbobcat_poisframes.RDA")
 
 save(basic.ssDF, 
-     file = "E:/Socal Bobcat Reproducible Research Folder/Processed Data/socalbobcat_basicssDF.RDA")
+     file = "./Processed Data/socalbobcat_basicssDF.RDA")
 
 ####END HERE 
 ###Go to next step where you can load the building blocks and make the ssDFs/ actuall run tests for binomial/poisson 
