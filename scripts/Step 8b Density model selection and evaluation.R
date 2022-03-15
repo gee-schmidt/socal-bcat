@@ -4,7 +4,7 @@
 #setwd first
 setwd("E:/Socal Bobcat Reproducible Research Folder")
 
-#load oscr package 
+#load oscr package and other packages
 library(oSCR)
 
 #load models 
