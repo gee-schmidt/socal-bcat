@@ -84,6 +84,6 @@ fl.R <- fitList.oSCR(list(m0.R,
                           mp0cam.R,
                           mp0season.R,
                           mp0rec.R,
-                          mp0site.L), rename=TRUE) #rename=T adds sensible model names
+                          mp0site.R), rename=TRUE) #rename=T adds sensible model names
 ms.R <- modSel.oSCR(fl.R)
 ms.R
