@@ -12,7 +12,7 @@ library(oSCR)
 load("./Results/Model Outputs/socalbobcat_trapdet_models_LR.RDA")
 
 ##rsf mods (LR) 
-file_names=as.list(dir("./Results/Model Outputs/RSF Mods",pattern="RDA"))
+file_names=list.files("./Results/Model Outputs/RSF Mods",pattern="RDA",full.names = TRUE)
 
 lapply(file_names, load, environment())
 
