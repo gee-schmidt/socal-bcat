@@ -1,11 +1,16 @@
 #Step 8b Density model selection
 
-
 #setwd first
 setwd("E:/Socal Bobcat Reproducible Research Folder")
 
 #load oscr package and other packages
 library(oSCR)
+library(ggplot2)
+library(raster)
+library(scales)
+library(ggthemes)
+library(rgdal)
+library(maptools)
 
 #load models 
 load("./Results/Model Outputs/Density Mods/socalbobcat_densitymodels_LR.rda")
@@ -293,6 +298,77 @@ plots.2
 ggsave("2022_0203_densdetimperv_plot.png",plot = plots.2, width = 14, height = 6, dpi = 800)
 getwd()
 
+
+######SERIOUSLY NEEDS CLEANING BUT THIS IS FOR GETTING THE STUDY AREA SPECIFIC DENSITY ESTIMATES
+ssDF.top[c(1,2)] <- ssDF.top[c(1,2)]*1000
+
+ssDF.top$ED.4 <- ssDF.top$ED*4
+
+hist(ssDF.top$ED.4)
+
+ED.df <- ssDF.top[c(1,2,16)]  
+
+ED.rast <- rasterFromXYZ(ED.df, crs = "+proj=utm +zone=11 +datum=NAD83 +units=m +no_defs +ellps=GRS80 +towgs84=0,0,0")
+
+plot(ED.rast)
+
+
+plot(topmod.preds[[pb]])
+
+
+plot(topmod.preds[["pbar"]][[1]])
+plot(topmod.preds[["r"]][[1]])
+
+pq_trapbuff <- st_read
+getwd()
+pq_trapbuff <- readOGR(dsn = "./Processed Data/Spatial Data/Shapefiles", layer = "PenasquitosTraps_3kmbuff")
+plot(pq_trapbuff, add = TRUE)
+
+WUI_trapbuff <- readOGR(dsn = "./Processed Data/Spatial Data/Shapefiles", layer = "WUITraps_3kmbuff")
+plot(WUI_trapbuff, add = TRUE)
+
+wildland_trapbuff <- readOGR(dsn = "./Processed Data/Spatial Data/Shapefiles", layer = "WildlandTraps_3kmbuff")
+plot(wildland_trapbuff, add = TRUE)
+
+
+pq_crop <- crop(ED.rast, extent(pq_trapbuff))
+pq_mask <- mask(pq_crop, pq_trapbuff)
+plot(pq_mask)
+plot(pq_trapbuff,add=TRUE, lwd = 2)
+
+
+WUI_crop <- crop(ED.rast, extent(WUI_trapbuff))
+WUI_mask <- mask(WUI_crop, WUI_trapbuff)
+plot(WUI_mask)
+plot(WUI_trapbuff,add=TRUE, lwd = 2)
+
+wildland_crop <- crop(ED.rast, extent(wildland_trapbuff))
+wildland_mask <- mask(wildland_crop, wildland_trapbuff)
+plot(wildland_mask)
+plot(wildland_trapbuff,add=TRUE, lwd = 2)
+
+
+cellStats(pq_mask, stat="mean")*100
+cellStats(pq_mask, stat="sd")*100
+
+
+
+
+
+cellStats(WUI_mask, stat="mean")*100
+cellStats(WUI_mask, stat="sd")*100
+
+
+cellStats(wildland_mask, stat="mean")*100
+cellStats(wildland_mask, stat="sd")*100
+
+
+hist(pq_mask)
+
+hist(test)
+test <- data.frame(rasterToPoints(pq_mask))
+mean(test$ED.4)*100
+sd(test$ED.4)*100
 
 
 
