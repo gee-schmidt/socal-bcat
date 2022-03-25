@@ -35,6 +35,12 @@ names(telem.data)
 ###filter for precision/accuracy (according to lewis paper)
 filter(telem.data, Satellites >=3 & HDOP <= 5)
 
+total.locs <- telem.data %>% 
+  filter(Satellites >=3 & HDOP <= 5) %>%
+  group_by(Animal,Date_Format)
+
+m03.locs <- subset(total.locs, Animal == "M03")
+
 telem.data.1 <- telem.data %>% 
   filter(Satellites >=3 & HDOP <= 5) %>%
   group_by(Animal,Date_Format) %>%
