@@ -2,18 +2,18 @@
 
 ######Telemetry processing script
 
-#set the wd 
-setwd("D:/Socal Bobcat Reproducible Research Folder")
-
 #load what you need 
 library(oSCR)
 library(lubridate)
 library(tidyverse)
 library(dplyr)
 
+#this folder path gets from socal_bcat up 3 folders to the reproducible research overarching folders
+#(./../../../)
+
 #load the ssDF bc needed for the telem data 
-load("./Processed Data/socalbobcat_basicssDF.RDA")
-load("./Processed Data/socalbobcat_scrframebuildingblocks.RDA")
+load("./../../../Processed Data/socalbobcat_basicssDF.RDA")
+load("./../../../Processed Data/socalbobcat_scrframebuildingblocks.RDA")
 
 ###INFO ON THE CATS INCLUDED 
 ###Also caught on cam: M03 (66), M14 (71), M15 OR 16 (100)?
@@ -25,7 +25,7 @@ unique(sort(bcat_L$id))
 
 ###NEEDS to be the POSITION in the EDF in cap.tel, NOT id#!!!!
 # ##load in the raw telemetry
-telem.data <- read.csv("./Processed Data/socalbobcat_telemdata.csv")
+telem.data <- read.csv("./../../../Processed Data/socalbobcat_telemdata.csv")
 
 
 telem.data <- telem.data%>%mutate(Date_Format = make_date(Year,Month,Day))
@@ -128,6 +128,6 @@ bcat.telem.oscr.thinned.R<-list(fixfreq=bcat.nfix.thinned,cap.tel=list(cap.tel.R
 
 ###save data file 
 save(bcat.telem.oscr.thinned.L,
-     bcat.telem.oscr.thinned.R,file= "./Processed Data/socalbobcat_processed_telem_data.RDA")
+     bcat.telem.oscr.thinned.R,file= "./../../../Processed Data/socalbobcat_processed_telem_data.RDA")
 
 
