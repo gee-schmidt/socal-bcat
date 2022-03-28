@@ -1,18 +1,17 @@
 ##Step 7 RSF incorporated into detection model 
 
-
-#setwd first
-setwd("E:/Socal Bobcat Reproducible Research Folder")
-
 #load oscr package 
 library(oSCR)
+library(here)
+
+#this folder path gets from socal_bcat up 3 folders to the reproducible research overarching folders
+#(./../../../)
 
 #load scrframe and ssdf
-load("./Processed Data/socalbobcat_sfssdf_LR_telemandcovs.rda")
+load("./../../../Processed Data/socalbobcat_sfssdf_LR_telemandcovs.rda")
 
 #setwd again for saving model outputs 
-setwd("E:/Socal Bobcat Reproducible Research Folder/Results/Model Outputs/RSF Mods")
-
+setwd("./../../../Results/Model Outputs/RSF Mods")
 
 #####Lefts
 L.rsf.water <- oSCR.fit(model=list(D~1,p0~water_dist + rec_level,sig~1),
@@ -283,6 +282,6 @@ R.rsf.elev.imperv <- oSCR.fit(model=list(D~1,p0~elev + imperv + rec_level,sig~1)
 save(R.rsf.elev.imperv,
      file = "R_rsf_elev_imperv.RDA")
 
-
+setwd(here())
 
 
