@@ -1,13 +1,13 @@
 #Step 6b Encounter model selection - trap covs only
 
-
-#setwd first
-setwd("E:/Socal Bobcat Reproducible Research Folder")
-
 #load oscr package 
 library(oSCR)
+library(here)
 
-load("./Results/Model Outputs/socalbobcat_trapdet_models_LR.RDA")
+#this folder path gets from socal_bcat up 3 folders to the reproducible research overarching folders
+#(./../../../)
+
+load("./../../../Results/Model Outputs/socalbobcat_trapdet_models_LR.RDA")
 
 ############Model Selection######################
 
