@@ -1,13 +1,14 @@
 ### Step 6 Detection Models - trapcovs only sel first 
 
-#setwd first
-setwd("E:/Socal Bobcat Reproducible Research Folder")
-
 #load oscr package 
 library(oSCR)
+library(here)
+
+#this folder path gets from socal_bcat up 3 folders to the reproducible research overarching folders
+#(./../../../)
 
 #load scrframe and ssdf
-load("./Processed Data/socalbobcat_sfssdf_LR_telemandcovs.rda")
+load("./../../../Processed Data/socalbobcat_sfssdf_LR_telemandcovs.rda")
 
 ##nulls
 m0.L<- oSCR.fit(model=list(D~1,p0~1,sig~1), 
@@ -63,7 +64,7 @@ save(m0.R,m0.L,
      mp0cam.R,mp0cam.L,
      mp0rec.R,mp0rec.L,
      mp0site.R,mp0site.L,
-     file = "./Results/Model Outputs/socalbobcat_trapdet_models_LR.RDA")
+     file = "./../../../Results/Model Outputs/socalbobcat_trapdet_models_LR.RDA")
 
 
 
