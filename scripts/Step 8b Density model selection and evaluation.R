@@ -1,8 +1,5 @@
 #Step 8b Density model selection
 
-#setwd first
-setwd("E:/Socal Bobcat Reproducible Research Folder")
-
 #load oscr package and other packages
 library(oSCR)
 library(ggplot2)
@@ -11,9 +8,13 @@ library(scales)
 library(ggthemes)
 library(rgdal)
 library(maptools)
+library(here)
+
+#this folder path gets from socal_bcat up 3 folders to the reproducible research overarching folders
+#(./../../../)
 
 #load models 
-load("./Results/Model Outputs/Density Mods/socalbobcat_densitymodels_LR.rda")
+load("./../../../Results/Model Outputs/Density Mods/socalbobcat_densitymodels_LR.rda")
 
 ##density model selection
 
