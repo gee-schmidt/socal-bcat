@@ -7,6 +7,7 @@ library(oSCR)
 library(lubridate)
 library(tidyverse)
 library(dplyr)
+library(here)
 
 #this folder path gets from socal_bcat up 3 folders to the reproducible research overarching folders
 #(./../../../)
