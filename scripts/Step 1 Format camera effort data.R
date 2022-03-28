@@ -1,13 +1,12 @@
 ####Script to format effort data for trap opp, eventually. From cam set dates provided by Megan 
 
-setwd("D:/Socal Bobcat Reproducible Research Folder")
-
-
 library(lubridate)
 library(dplyr)
+library(here)
 
 #read in the data 
-camset<-read.csv("./Processed Data/socalbcat_camactivity.csv")
+#go back 3 levels from the project folder (socal-bcat) 
+camset<-read.csv("./../../../Processed Data/socalbcat_camactivity.csv")
 
 #convert to lubridate format
 camset$set_date<-ymd(camset$Int_Start)
@@ -39,8 +38,8 @@ weekly.trap.opp<-aggregate(.~Station, df,sum)
 #def not most efficient way to do this but it gets the job done... 
 weekly.trap.opp[2:64] <- lapply(weekly.trap.opp[2:64], function(x) ifelse(x > 0, 1, 0))
 
-write.csv(weekly.trap.opp, file = "./Processed Data/socalbcat_weeklytrapopp.csv")
+write.csv(weekly.trap.opp, file = "./../../../Processed Data/socalbcat_weeklytrapopp.csv")
 
-write.csv(break.df, file = "./Processed Data/socalbcat_weeklyoccasions.csv")
+write.csv(break.df, file = "./../../../Processed Data/socalbcat_weeklyoccasions.csv")
 #and you have weekly trap operation for 36 cam stations across 63 weeks of monitoring 
 
