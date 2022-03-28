@@ -1,17 +1,17 @@
 ###Step 5 make the scrframes that will be used for model runs 
 
-#set the wd 
-setwd("D:/Socal Bobcat Reproducible Research Folder")
-
 library(oSCR)
 library(raster)
 library(sp)
+library(here)
 
+#this folder path gets from socal_bcat up 3 folders to the reproducible research overarching folders
+#(./../../../)
 
-load("./Processed Data/socalbobcat_basicssDF.RDA")
-load("./Processed Data/socalbobcat_scrframebuildingblocks.RDA")
-load("./Processed Data/socalbobcat_processed_telem_data.RDA")
-load("./Processed Data/Spatial Data/socalbcat_ssDFcovrasters.RDA")
+load("./../../../Processed Data/socalbobcat_basicssDF.RDA")
+load("./../../../Processed Data/socalbobcat_scrframebuildingblocks.RDA")
+load("./../../../Processed Data/socalbobcat_processed_telem_data.RDA")
+load("./../../../Processed Data/Spatial Data/socalbcat_ssDFcovrasters.RDA")
 
 ###make scrframes with added telemetry!! 
 bobcat_data.L <- data2oscr(bcat_L,##edf
@@ -90,7 +90,7 @@ bcat.ssDF[[1]]$season<-0
 
 
 ###Then save your frames and ssDF, and should be able to move on to the model running process from here... 
-save(bcat.sf.L,bcat.sf.R,bcat.ssDF,file = "./Processed Data/socalbobcat_sfssdf_LR_telemandcovs.rda")
+save(bcat.sf.L,bcat.sf.R,bcat.ssDF,file = "./../../../Processed Data/socalbobcat_sfssdf_LR_telemandcovs.rda")
 
 
 
