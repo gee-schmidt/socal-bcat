@@ -98,3 +98,5 @@ road1000.1.scale<-scale(road1000.1)
 save(water_dist_500.scale,elev_500.scale,imperv_500.scale,
      road465.1.scale,road1000.1.scale,
      file = "./../../../Processed Data/Spatial Data/socalbcat_ssDFcovrasters.rda")
+getwd()
+save(imperv_500,file = "./../../../Processed Data/Spatial Data/unscaled_imperv.rda")
