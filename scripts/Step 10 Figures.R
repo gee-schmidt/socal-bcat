@@ -124,7 +124,7 @@ all.rpu.plot <- ggplot() +
 all.rpu.plot
 
 ed.plot <- ggplot() +  
-  geom_tile(data=ssDF.top, aes(x=X, y=Y, fill=ED*4), alpha=0.8) +
+  geom_tile(data=ssDF.top, aes(x=X, y=Y, fill=ED), alpha=0.8) +
   scale_fill_viridis_c(option = "magma", name = bquote("E("~hat(D)~")"), labels = comma) +
   coord_equal() +
   theme_map() +
