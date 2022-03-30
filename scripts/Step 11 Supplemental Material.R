@@ -1,6 +1,6 @@
 #Step 11 Supplemental Material 
 
-#load oscr package and other packages
+#load oscr package and other packages - agh so many loaded probably not all used :/ 
 library(oSCR)
 library(ggplot2)
 library(raster)
@@ -9,9 +9,15 @@ library(ggthemes)
 library(rgdal)
 library(maptools)
 library(paletteer)
+library(colortools)
 library(ggpubr)
 library(here)
-
+library(sp)
+library(rgeos)
+library(sf)
+library(rasterVis)
+library(RColorBrewer)
+library(viridis)
 #this folder path gets from socal_bcat up 3 folders to the reproducible research overarching folders
 #(./../../../)
 
@@ -24,13 +30,133 @@ load("./../../../Results/Model Outputs/Density Mods/socalbobcat_densitymodels_LR
 
 #Model coefficient table 
 
-#Other results 
+#Region-specific ests 
+
+
+
+##Figures for Supplemental (region specific density ests)
+######SERIOUSLY NEEDS CLEANING BUT THIS IS FOR GETTING THE STUDY AREA SPECIFIC DENSITY ESTIMATES -- FIGURES 
+topmod.preds <- predict.oSCR(L.dens.imperv)
+sum(topmod.preds[["ssN"]][[1]])
+mean((topmod.preds[["ssN"]][[1]]))*400
+
+L.dens.imperv
+ssDF.top <- topmod.preds[["ssDF"]][[1]]
+ssDF.top[c(1,2)] <- ssDF.top[c(1,2)]*1000
+
+ssDF.top$ED.4 <- dens.df$estimate
+
+hist(ssDF.top$ED.4)
+
+ED.df <- ssDF.top[c(1,2,13)]  
+
+ED.rast <- rasterFromXYZ(ED.df, crs = "+proj=utm +zone=11 +datum=NAD83 +units=m +no_defs +ellps=GRS80 +towgs84=0,0,0")
 
 
 
 
-##Figures for Supplemental methods 1 (region specific density ests)
+plot(topmod.preds[[pb]])
 
+
+plot(topmod.preds[["pbar"]][[1]])
+plot(topmod.preds[["r"]][[1]])
+
+pq_trapbuff <- readOGR(dsn = "./../../../Processed Data/Spatial Data/Shapefiles", layer = "PenasquitosTraps_3kmbuff")
+plot(pq_trapbuff, add = TRUE)
+
+WUI_trapbuff <- readOGR(dsn = "./../../../Processed Data/Spatial Data/Shapefiles", layer = "WUITraps_3kmbuff")
+plot(WUI_trapbuff, add = TRUE)
+
+wildland_trapbuff <- readOGR(dsn = "./../../../Processed Data/Spatial Data/Shapefiles", layer = "WildlandTraps_3kmbuff")
+plot(wildland_trapbuff, add = TRUE)
+
+wildland_traps <- readOGR(dsn = "./../../../Processed Data/Spatial Data/Shapefiles", layer = "WildlandTraps")
+plot(wildland_traps, add = TRUE, pch = 15)
+
+WUI_traps <- readOGR(dsn = "./../../../Processed Data/Spatial Data/Shapefiles", layer = "WUITraps")
+plot(WUI_traps, add = TRUE, pch = 17)
+
+urban_traps <- readOGR(dsn = "./../../../Processed Data/Spatial Data/Shapefiles", layer = "PenasquitosTraps")
+plot(urban_traps, add = TRUE, pch = 16)
+
+
+
+
+png("./../../../Tables and Figures/Figures/region_density_plot.png", width = 5, height = 5,unit = "in", res = 600)
+plot(ED.rast, col = viridis::magma(10), bty = "n", box = FALSE)
+plot(pq_trapbuff, add = TRUE, border = "white", lwd = 2)
+plot(WUI_trapbuff, add = TRUE, border = "white", lwd = 2)
+plot(wildland_trapbuff, add = TRUE, border = "white", lwd = 2)
+plot(wildland_traps, add = TRUE, pch = 15, col = "white")
+plot(WUI_traps, add = TRUE, pch = 17, col = "white")
+plot(urban_traps, add = TRUE, pch = 16, col = "white")
+# Close device
+dev.off()
+
+
+ggplot() +
+  geom_raster(data = ED.rast , 
+              aes(x = x, y = y, 
+                  fill = ED.4)) +   
+  scale_fill_viridis_c() +  
+  scale_alpha(range = c(0.15, 0.65), guide = "none") +  
+  ggtitle("Elevation with hillshade") +
+  coord_quickmap()
+
+ggplot() +
+  geom_sf(data = WUI_trapbuff) +
+  geom_sf(data = pq_trapbuff) +
+  geom_sf(data = wildland_trapbuff) +
+  geom_sf(data = WUI_traps) +
+  geom_sf(data = pq_traps) +
+  geom_sf(data = wildland_traps) +
+  coord_sf()
+
+
+
+pq_crop <- crop(ED.rast, extent(pq_trapbuff))
+pq_mask <- mask(pq_crop, pq_trapbuff)
+plot(pq_mask)
+plot(pq_trapbuff,add=TRUE, lwd = 2, )
+
+
+WUI_crop <- crop(ED.rast, extent(WUI_trapbuff))
+WUI_mask <- mask(WUI_crop, WUI_trapbuff)
+plot(WUI_mask)
+plot(WUI_trapbuff,add=TRUE, lwd = 2)
+
+wildland_crop <- crop(ED.rast, extent(wildland_trapbuff))
+wildland_mask <- mask(wildland_crop, wildland_trapbuff)
+plot(wildland_mask)
+plot(wildland_trapbuff,add=TRUE, lwd = 2)
+
+
+cellStats(pq_mask, stat="mean")*100
+cellStats(pq_mask, stat="sd")*100
+
+
+
+
+
+cellStats(WUI_mask, stat="mean")*100
+cellStats(WUI_mask, stat="sd")*100
+
+
+cellStats(wildland_mask, stat="mean")*100
+cellStats(wildland_mask, stat="sd")*100
+
+
+hist(pq_mask)
+
+hist(test)
+test <- data.frame(rasterToPoints(pq_mask))
+mean(test$ED.4)*100
+sd(test$ED.4)*100
+
+tiff(filename="./../../../Tables and Figures/Figures/region_plot.tiff",
+     units="in",width = 5, height = 5, res = 800,compression="lzw")
+all.maps
+dev.off()
 
 
 ####Other Supp Figures
@@ -39,21 +165,21 @@ load("./../../../Results/Model Outputs/Density Mods/socalbobcat_densitymodels_LR
 
 
 ####gotta fix this for the workflow but fine for now I guess 
-load("C:/Users/Greta/Desktop/SDSU Fall 2020/Julia_Bobcat_Paper/R_Data_Inputs/2022_0203_imperv_500m_unscaled.rda")
-
+load("./../../../Processed Data/Spatial Data/unscaled_imperv.rda")
+plot(imperv_500)
 
 ssDF.imperv.unscaled <- extract.rast(L.dens.imperv[["ssDF"]],imperv_500, mult = 1000, cov.name = "imperv")
 
 newdata = data.frame(session=factor(1),
-                     imperv = ssDF.top$imperv)
+                     imperv = L.dens.imperv[["ssDF"]][[1]]$imperv)
 dens.df <- get.real(L.dens.imperv, type = "dens", d.factor = 4, newdata = newdata)
 
 dens.df$unsc.imperv <-  ssDF.imperv.unscaled[[1]][["imperv"]]
 
 
 newdata = data.frame(session=factor(1),
-                     imperv = ssDF.top$imperv,
-                     elev = mean(ssDF.top$elev),
+                     imperv = L.dens.imperv[["ssDF"]][[1]]$imperv,
+                     elev = mean(L.dens.imperv[["ssDF"]][[1]]$elev),
                      rec_level = 0)
 
 det.df <- get.real(L.dens.imperv, type = "det", newdata = newdata)
@@ -86,30 +212,22 @@ det.plot <- ggplot(det.df, aes(x=unsc.imperv, y = estimate, ymin = lwr, ymax = u
 
 
 det.plot
-dens.plot.2 <- ggMarginal(dens.plot,
-                          type = "histogram", 
-                          xparams = list(  bins=10),
-                          yparams = list(bins = 10),
-                          position = "identity",
-                          theme(axis.line = element_blank()))
-dens.plot.2
-ggsave("2022_0107_densimperv_plot.png",plot = dens.plot.2, width = 10, height = 9, dpi = 800)
-getwd()
+
 
 range(dens.df$estimate)
 
 
-all.maps.2 <- ggarrange(det.plot, dens.plot, elev.rpu.plot,imperv.rpu.plot,all.rpu.plot,ed.plot,nrow = 3, ncol = 2, labels = "auto",
-                        align = c("hv"))
-
-all.maps.2
-
-plots.2 <- ggarrange(det.plot, dens.plot, nrow = 1, ncol = 2,  labels = "auto",
+densdetplot.L <- ggarrange(det.plot, dens.plot, nrow = 1, ncol = 2,  labels = "auto",
                      align = c("hv"), vjust = 5)
-plots.2
+densdetplot.L
 
-ggsave("2022_0203_densdetimperv_plot.png",plot = plots.2, width = 14, height = 6, dpi = 800)
-getwd()
+ggsave("./../../../Tables and Figures/Figures/densdetimperv_plot_L.png",plot = densdetplot.L, width = 14, height = 6, dpi = 800)
+
+tiff(filename="./../../../Tables and Figures/Figures/RPU_ED_plot.tiff",
+     units="in",width = 14, height = 6, res = 800,compression="lzw")
+densdetplot.L
+dev.off()
+
 
 #############
 ####RIGHT####
@@ -240,5 +358,57 @@ dev.off()
 
 
 ####Right Density /prob use / imperv relationship figure 
+newdata = data.frame(session=factor(1),
+                     imperv = R.dens.imperv[["ssDF"]][[1]]$imperv)
+dens.df <- get.real(R.dens.imperv, type = "dens", d.factor = 4, newdata = newdata)
 
+dens.df$unsc.imperv <-  ssDF.imperv.unscaled[[1]][["imperv"]]
+
+
+newdata = data.frame(session=factor(1),
+                     imperv = R.dens.imperv[["ssDF"]][[1]]$imperv,
+                     elev = mean(R.dens.imperv[["ssDF"]][[1]]$elev),
+                     rec_level = 0)
+
+det.df <- get.real(R.dens.imperv, type = "det", newdata = newdata)
+
+det.df$unsc.imperv <-  ssDF.imperv.unscaled[[1]][["imperv"]]
+
+
+complementary("thistle")
+
+dens.plot <- ggplot(dens.df, aes(x=unsc.imperv, y = estimate, ymin = lwr, ymax = upr))+
+  geom_point(alpha = 0)+
+  geom_ribbon(fill = "#D8BFD8" ,alpha = 0.4) +
+  geom_line(size = 1.5)+
+  labs(x="% Impervious Surface", y = expression ("Density (bobcats/"~km^2~")"))+
+  theme_classic()+
+  theme(axis.text = element_text(size = 15),
+        axis.title = element_text(size = 18))
+
+
+dens.plot
+
+det.plot <- ggplot(det.df, aes(x=unsc.imperv, y = estimate, ymin = lwr, ymax = upr))+
+  geom_ribbon(fill = "#BFD8BF",alpha = 0.2) +
+  geom_line(size = 1.5)+
+  geom_point(alpha = 0)+
+  labs(x="% Impervious Surface", y = "Probability of Use")+
+  theme_classic()+
+  theme(axis.text = element_text(size = 15),
+        axis.title = element_text(size = 18))
+
+
+det.plot
+
+
+range(dens.df$estimate)
+
+
+densdetplot.R <- ggarrange(det.plot, dens.plot, nrow = 1, ncol = 2,  labels = "auto",
+                           align = c("hv"), vjust = 5)
+densdetplot.R
+
+ggsave("./../../../Tables and Figures/Figures/densdetimperv_plot_R.png",plot = densdetplot.R, width = 14, height = 6, dpi = 800)
+getwd()
 
