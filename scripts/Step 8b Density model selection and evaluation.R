@@ -303,3 +303,139 @@ sd(test$ED.4)*100
 
 
 ###RIGHT model evaluation
+
+topmod.preds <- predict.oSCR(R.dens.imperv)
+sum(topmod.preds[["ssN"]][[1]])
+mean((topmod.preds[["ssN"]][[1]]))*400
+
+R.dens.imperv
+ssDF.top <- R.dens.imperv[["ssDF"]][[1]]
+sig.df <- get.real(model = R.dens.imperv, type = "sig")
+
+newdata.det = data.frame(session=factor(1),
+                         imperv = 0,
+                         elev = 0 ,
+                         rec_level = 0)
+det.df <- get.real(model = R.dens.imperv, type = "det", newdata = newdata.det)
+
+dens.df <- get.real(model = R.dens.imperv, type = "dens")
+
+dens.df[[1]]
+#mean pixel density
+
+mean(dens.df[[1]]$estimate*400)
+
+#range pixel density
+
+hist(dens.df[[1]]$estimate*400)
+
+range(dens.df[[1]]$estimate)
+
+#bobcats across study area
+
+sum(dens.df[[1]]$estimate)
+
+
+####things for the equation
+sigma = sig.df[1,3]
+alpha2elev = R.dens.imperv[["coef.mle"]][3,2]
+alpha2imperv = R.dens.imperv[["coef.mle"]][5,2]
+distance = 0.5
+d.0 = R.dens.imperv[["coef.mle"]][6,2]
+d.imperv = R.dens.imperv[["coef.mle"]][7,2]
+d.imperv.lwr = (R.dens.imperv[["outStats"]][7,2] - 1.96 * R.dens.imperv[["outStats"]][7,3])
+d.imperv.upr = (R.dens.imperv[["outStats"]][7,2] + 1.96 * R.dens.imperv[["outStats"]][7,3])
+d.0.lwr = (R.dens.imperv[["outStats"]][6,2] - 1.96 * R.dens.imperv[["outStats"]][6,3])
+d.0.upr = (R.dens.imperv[["outStats"]][6,2] + 1.96 * R.dens.imperv[["outStats"]][6,3])
+
+ssDF.top$topeq.all <- exp(-(1/(2*sigma*sigma))*distance + alpha2elev*(ssDF.top$elev) + alpha2imperv*(ssDF.top$imperv))
+ssDF.top$rpu.all <- ssDF.top$topeq.all/sum(ssDF.top$topeq.all)
+
+ssDF.top$topeq.elev <- exp(-(1/(2*sigma*sigma))*distance + alpha2elev*(ssDF.top$elev) + alpha2imperv*mean(ssDF.top$imperv))
+ssDF.top$rpu.elev <- ssDF.top$topeq.elev/sum(ssDF.top$topeq.elev)
+
+ssDF.top$topeq.imperv <- exp(-(1/(2*sigma*sigma))*distance + alpha2elev*mean(ssDF.top$elev) + alpha2imperv*(ssDF.top$imperv))
+ssDF.top$rpu.imperv <- ssDF.top$topeq.imperv/sum(ssDF.top$topeq.imperv)
+
+ssDF.top$ED <- exp(d.0 + d.imperv * ssDF.top$imperv)
+
+ssDF.top$ED.lwr <- exp(d.0.lwr + d.imperv.lwr * ssDF.top$imperv)
+
+ssDF.top$ED.upr <- exp(d.0.upr + d.imperv.upr * ssDF.top$imperv)
+
+mean(ssDF.top$ED)*400
+mean(ssDF.top$ED.lwr)*400
+mean(ssDF.top$ED.upr)*400
+
+
+####Right model region-specific densities
+
+ED.df <- ssDF.top[c(1,2,19)]  
+
+ED.df[c(1,2)] <- ED.df[c(1,2)]*1000
+
+ED.rast <- rasterFromXYZ(ED.df, crs = "+proj=utm +zone=11 +datum=NAD83 +units=m +no_defs +ellps=GRS80 +towgs84=0,0,0")
+
+plot(ED.rast)
+
+
+plot(topmod.preds[[pb]])
+
+
+plot(topmod.preds[["pbar"]][[1]])
+plot(topmod.preds[["r"]][[1]])
+
+
+pq_trapbuff <- readOGR(dsn = "./../../../Processed Data/Spatial Data/Shapefiles", layer = "PenasquitosTraps_3kmbuff")
+plot(pq_trapbuff, add = TRUE)
+
+WUI_trapbuff <- readOGR(dsn = "./../../../Processed Data/Spatial Data/Shapefiles", layer = "WUITraps_3kmbuff")
+plot(WUI_trapbuff, add = TRUE)
+
+wildland_trapbuff <- readOGR(dsn = "./../../../Processed Data/Spatial Data/Shapefiles", layer = "WildlandTraps_3kmbuff")
+plot(wildland_trapbuff, add = TRUE)
+
+
+pq_crop <- crop(ED.rast, extent(pq_trapbuff))
+pq_mask <- mask(pq_crop, pq_trapbuff)
+plot(pq_mask)
+plot(pq_trapbuff,add=TRUE, lwd = 2)
+
+
+WUI_crop <- crop(ED.rast, extent(WUI_trapbuff))
+WUI_mask <- mask(WUI_crop, WUI_trapbuff)
+plot(WUI_mask)
+plot(WUI_trapbuff,add=TRUE, lwd = 2)
+
+wildland_crop <- crop(ED.rast, extent(wildland_trapbuff))
+wildland_mask <- mask(wildland_crop, wildland_trapbuff)
+plot(wildland_mask)
+plot(wildland_trapbuff,add=TRUE, lwd = 2)
+
+
+cellStats(pq_mask, stat="mean")*400
+cellStats(pq_mask, stat="sd")*400
+
+
+
+
+
+cellStats(WUI_mask, stat="mean")*400
+cellStats(WUI_mask, stat="sd")*400
+
+
+cellStats(wildland_mask, stat="mean")*400
+cellStats(wildland_mask, stat="sd")*400
+
+
+hist(pq_mask)
+
+hist(test)
+test <- data.frame(rasterToPoints(pq_mask))
+mean(test$ED.4)*100
+sd(test$ED.4)*100
+
+
+
+
+
