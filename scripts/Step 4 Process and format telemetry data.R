@@ -104,31 +104,38 @@ telem.data.all.thinned<-do.call(rbind, catlist)
 
 #just get the ID and UTM columns 
 telem.data.all.thinned.1<-telem.data.all.thinned[c(2,11,12)]
+telem.data.M01.only <- xxtelem.data.1.M01[c(2,11,12)]
 
 #rename 
 names(telem.data.all.thinned.1)<- c("ind","X","Y")
-
+names(telem.data.M01.only) <- c("ind","X","Y")
 #make ind a character, I think that's important 
 telem.data.all.thinned.1$ind<-as.character(telem.data.all.thinned.1$ind)
+telem.data.M01.only$ind<-as.character(telem.data.M01.only$ind)
 
 #convert from m to km (to match the ssDF and scrFrame)
 telem.data.all.thinned.1[,c("X","Y")] <- telem.data.all.thinned.1[,c("X","Y")]/1e3
+telem.data.M01.only[,c("X","Y")] <- telem.data.M01.only[,c("X","Y")]/1e3
 
 
 ###format as df
 telem.data.all.thinned.1<-as.data.frame(telem.data.all.thinned.1)
-
+telem.data.M01.only<-as.data.frame(telem.data.M01.only)
 
 ##put thru oscr function to get in correct format for scrFrame 
 bcat.nfix.thinned <- telemetry.processor(list(basic.ssDF[[1]]),
                                          list(telem.data.all.thinned.1))$nfreq
-
+bcat.nfix.M01 <- telemetry.processor(list(basic.ssDF[[1]]),
+                                     list(telem.data.M01.only))$nfreq
 ###make one specially for left and right datasets for where those collared cats are in those edfs 
 bcat.telem.oscr.thinned.L<-list(fixfreq=bcat.nfix.thinned,cap.tel=list(cap.tel.L))
 bcat.telem.oscr.thinned.R<-list(fixfreq=bcat.nfix.thinned,cap.tel=list(cap.tel.R))
+bcat.telem.oscr.ERROR <- list(fixfreq=bcat.nfix.M01)
 
 ###save data file 
 save(bcat.telem.oscr.thinned.L,
-     bcat.telem.oscr.thinned.R,file= "./../../../Processed Data/socalbobcat_processed_telem_data.RDA")
+     bcat.telem.oscr.thinned.R,
+     bcat.telem.oscr.ERROR,
+     file= "./../../../Processed Data/socalbobcat_processed_telem_data.RDA")
 
 
