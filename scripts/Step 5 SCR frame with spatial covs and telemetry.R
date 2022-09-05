@@ -28,6 +28,20 @@ bobcat_data.L <- data2oscr(bcat_L,##edf
                                 remove.extracaps = FALSE)##if have trapcovs 
 ###there will be warning messages but ignore them, want pois and have sorted collared cats right 
 
+###THIS IS AN ERROR TEST FOR TELEM DATA -- M01 
+bobcat_data.L.ERRORTEST <- data2oscr(bcat_L,##edf
+                           tdf = list(opp.shrink.tdf.28occs.metadata), ##tdf w/ trap effort 
+                           sess.col = 13,
+                           id.col = 2,
+                           occ.col = 14, 
+                           trap.col = 4,
+                           K = c(28), ##sessions w/ occasions 
+                           ntraps = c(36),##traps
+                           telemetry = bcat.telem.oscr.ERROR,
+                           trapcov.names = c("site_type","rec_level","cam_type","season"),
+                           tdf.sep = "/",
+                           remove.extracaps = FALSE)##if have trapcovs 
+##RIGHT
 bobcat_data.R <- data2oscr(bcat_R,##edf
                                 tdf = list(opp.shrink.tdf.28occs.metadata), ##tdf w/ trap effort 
                                 sess.col = 13,
@@ -51,6 +65,7 @@ plot(bobcat_data.R$scrFrame)
 #####NOW add spatial covs to basic ssDF
 #you need this for some reason, i think
 .rs.unloadPackage("tidyr")
+#then have to extract. i should have done this elsewhere and saved it, it takes a long time...
 ssDF.water<-extract.rast(basic.ssDF, water_dist_500.scale, mult = 1000, cov.name = "water_dist")
 ssDF.elev<-extract.rast(ssDF.water, elev_500.scale, mult = 1000, cov.name = "elev")
 ssDF.road465<-extract.rast(ssDF.elev, road465.1.scale, mult = 1000, cov.name = "road465")
@@ -79,6 +94,10 @@ sf <- make.scrFrame(caphist = caphist, traps = traps, trapCovs = trapCovs, rsfDF
 bcat.sf.R<-bobcat_data.R$scrFrame
 bcat.sf.R$trapCovs<-sf[["trapCovs"]]
 
+###this is the error test one 
+bcat.sf.L.ERRORTEST <- bobcat_data.L.ERRORTEST$scrFrame
+bcat.sf.L.ERRORTEST$trapCovs<-sf[["trapCovs"]]
+
 
 #then, i think this is fine, make one ssDF for both left and right
 
@@ -90,7 +109,8 @@ bcat.ssDF[[1]]$season<-0
 
 
 ###Then save your frames and ssDF, and should be able to move on to the model running process from here... 
-save(bcat.sf.L,bcat.sf.R,bcat.ssDF,file = "./../../../Processed Data/socalbobcat_sfssdf_LR_telemandcovs.rda")
+save(bcat.sf.L,bcat.sf.R,bcat.sf.L, bcat.sf.L.ERRORTEST,
+     file = "./../../../Processed Data/socalbobcat_sfssdf_LR_telemandcovs.rda")
 
 
 

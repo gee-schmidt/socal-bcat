@@ -10,6 +10,11 @@ library(here)
 #load scrframe and ssdf
 load("./../../../Processed Data/socalbobcat_sfssdf_LR_telemandcovs.rda")
 
+##errortest
+m0.L.errortest <- oSCR.fit(model=list(D~1,p0~1,sig~1), 
+                           scrFrame=bcat.sf.L.ERRORTEST, ssDF=bcat.ssDF, encmod = "P",
+                           RSF = F, telemetry.type = "dep")
+
 ##nulls
 m0.L<- oSCR.fit(model=list(D~1,p0~1,sig~1), 
                            scrFrame=bcat.sf.L, ssDF=bcat.ssDF, encmod = "P",
