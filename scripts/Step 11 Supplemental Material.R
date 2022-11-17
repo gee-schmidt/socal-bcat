@@ -18,6 +18,7 @@ library(sf)
 library(rasterVis)
 library(RColorBrewer)
 library(viridis)
+library(ggpubr)
 #this folder path gets from socal_bcat up 3 folders to the reproducible research overarching folders
 #(./../../../)
 
@@ -228,6 +229,55 @@ tiff(filename="./../../../Tables and Figures/Figures/RPU_ED_plot.tiff",
 densdetplot.L
 dev.off()
 
+
+####PPT VERSION###
+devtools::install_github("katiejolly/nationalparkcolors")
+library(nationalparkcolors)
+names(park_palettes)
+pal <- park_palette("Saguaro")
+pal
+
+dens.plot.PPT <- ggplot(dens.df, aes(x=unsc.imperv, y = estimate, ymin = lwr, ymax = upr))+
+  geom_point(alpha = 0)+
+  geom_ribbon(fill = pal[1] ,alpha = 0.7) +
+  geom_line(size = 1.5)+
+  labs(x="% Impervious Surface", y = expression ("Density (bobcats/"~km^2~")"))+
+  theme_classic()+
+  theme(axis.text = element_text(size = 15),
+        axis.title = element_text(size = 18))
+
+
+dens.plot.PPT
+
+det.plot.PPT <- ggplot(det.df, aes(x=unsc.imperv, y = estimate, ymin = lwr, ymax = upr))+
+  geom_ribbon(fill = pal[3],alpha = 0.7) +
+  geom_line(size = 1.5)+
+  geom_point(alpha = 0)+
+  labs(x="Development Intensity \n (% Impervious Surface)", y = "Probability of Use")+
+  theme_classic()+
+  theme(axis.text = element_text(size = 16),
+        axis.title = element_text(size = 22))
+
+
+det.plot.PPT
+
+
+range(dens.df$estimate)
+
+
+densdetplot.L.PPT <- ggarrange(det.plot, dens.plot, nrow = 1, ncol = 2,  labels = "auto",
+                           align = c("hv"), vjust = 5)
+densdetplot.L.PPT
+
+ggsave("./../../../Tables and Figures/Figures/densdetimperv_plot_L_PPT.png",plot = densdetplot.L.PPT, width = 14, height = 6, dpi = 800)
+ggsave("./../../../Tables and Figures/Figures/densimperv_plot_L_PPT.png",plot = dens.plot.PPT, width = 8, height = 6, dpi = 800)
+ggsave("./../../../Tables and Figures/Figures/detimperv_plot_L_PPT.png",plot = det.plot.PPT, width = 8, height = 6, dpi = 800)
+
+
+tiff(filename="./../../../Tables and Figures/Figures/RPU_ED_plot.tiff",
+     units="in",width = 14, height = 6, res = 800,compression="lzw")
+densdetplot.L
+dev.off()
 
 #############
 ####RIGHT####
